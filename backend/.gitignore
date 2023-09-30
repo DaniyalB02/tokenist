@@ -1,0 +1,16 @@
+# Python virtual environment
+/venv/
+
+# Compiled Python files
+__pycache__/
+
+# Django database file (if using SQLite)
+db.sqlite3
+
+# Byte-compiled / optimized Python files
+*.pyc
+*.pyo
+
+# Temporary files (e.g., *.swp) or OS-generated files
+*.swp
+.DS_Store

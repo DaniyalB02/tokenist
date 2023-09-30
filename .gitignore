@@ -1,0 +1,6 @@
+# .gitignore
+
+# Add or update these lines if not already present
+/frontend/node_modules/
+/frontend/build/
+/frontend/.env

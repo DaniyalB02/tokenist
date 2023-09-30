@@ -1,0 +1,7 @@
+networkx
+fn == 0.4.3
+cadCAD
+pandas
+numpy
+matplotlib
+hvplot 
