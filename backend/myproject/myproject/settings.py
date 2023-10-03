@@ -84,10 +84,11 @@ DATABASES = {
         'NAME': 'tokenist',
         'USER': 'postgres',
         'PASSWORD': 'Daniyal10!',
-        'HOST': 'localhost',  # Or your database server's address
-        'PORT': '',           # Leave it empty to use the default PostgreSQL port (5432)
+        'HOST': 'db',  # Use the service name defined in your Docker Compose file
+        'PORT': '5432',
     }
 }
+
 
 
 
