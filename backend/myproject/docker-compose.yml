@@ -1,15 +1,14 @@
-version: '3'
+version: '3.8'
 
 services:
   web:
-    image: my-django-app
+    build: .
     ports:
       - "8000:8000"
     depends_on:
       - db
     networks:
-      - mynetwork
-
+      - default
   db:
     image: postgres
     environment:
@@ -19,7 +18,10 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - mynetwork
-
+      - default
 networks:
-  mynetwork:
+  default:
+      name: app
+      external: false
+      driver: bridge
+

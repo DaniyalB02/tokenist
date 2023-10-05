@@ -2,8 +2,8 @@
 FROM python:3.8
 
 # Set environment variables
-ENV PYTHONUNBUFFERED 1
-ENV DJANGO_SETTINGS_MODULE myproject.settings
+# ENV PYTHONUNBUFFERED 1
+# ENV DJANGO_SETTINGS_MODULE myproject.settings
 
 # Create and set the working directory
 WORKDIR /app
@@ -21,7 +21,7 @@ COPY . /app/
 EXPOSE 8000
 
 # Define environment variable for Django
-ENV DJANGO_SETTINGS_MODULE=myproject.settings
+# ENV DJANGO_SETTINGS_MODULE=myproject.settings
 
 # Start your application
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["sh", "startup.sh"]
