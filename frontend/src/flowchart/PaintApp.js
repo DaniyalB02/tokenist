@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
-import { saveCirclesToFile } from "./saveUtility";
 
-function PaintApp() {
+
+function PaintApp({ setView }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -29,47 +29,41 @@ function PaintApp() {
 
   const [imageURL, setImageURL] = useState(null);
 
-  const saveCircles = () => {
-    saveCirclesToFile(circles);
-  };
-
   const endDrag = () => {
     setDraggingCircle(null);
   };
 
   const sendDataToBackend = async () => {
+    // Create data object
+    const circlesData = {
+      data: circles.map((circle) => ({
+        id: circle.id,
+        x: circle.x,
+        y: circle.y,
+        radius: circle.radius,
+        balance: circle.balance,
+      })),
+    };
 
-  // Create data object
-  const circlesData = {
-    data: circles.map((circle) => ({  
-      id: circle.id,
-      x: circle.x,
-      y: circle.y,
-      radius: circle.radius,
-      balance: circle.balance
-    }))
+    // Send POST request
+    const response = await fetch("http://localhost:8000/api/process_data/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(circlesData),
+    });
+
+    // Handle response
+    const data = await response.json();
+
+    if (data.error) {
+      console.error("Error:", data.error);
+    } else {
+      // Set image src to base64 data
+      setImageURL(`data:image/png;base64,${data.image}`);
+    }
   };
-
-  // Send POST request 
-  const response = await fetch("http://localhost:8000/api/process_data/", {
-    method: "POST", 
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(circlesData) 
-  });
-
-  // Handle response
-  const data = await response.json();
-
-  if (data.error) {
-    console.error("Error:", data.error);
-  } else {
-    // Set image src to base64 data
-    setImageURL(`data:image/png;base64,${data.image}`);
-  }
-
-};
 
   const dragCircle = (id, dx, dy) => {
     setCircles((prev) =>
@@ -168,65 +162,141 @@ function PaintApp() {
   }, [circles, selectedCircle]);
 
   return (
-    <div style={{ display: "flex" }}>
-      {imageURL ? (
-        <img src={imageURL} alt="Result" />
-      ) : (
-        <canvas
-          ref={canvasRef}
-          width={canvasWidth}
-          height={500}
-          onMouseUp={() => endDrag()}
-          onMouseMove={(e) => {
-            if (draggingCircle) {
-              dragCircle(draggingCircle, e.movementX, e.movementY);
-            }
-          }}
-          onMouseDown={(e) => {
-            const mouseX = e.nativeEvent.offsetX;
-            const mouseY = e.nativeEvent.offsetY;
-
-            for (const circle of circles) {
-              const distance = Math.sqrt(
-                (mouseX - circle.x) ** 2 + (mouseY - circle.y) ** 2
-              );
-              if (distance <= circle.radius) {
-                clickCircle(circle.id);
-                return;
+    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+      <div style={{ display: "flex", flex: 1 }}>
+        {imageURL ? (
+          <img src={imageURL} alt="Result" />
+        ) : (
+          <canvas
+            ref={canvasRef}
+            width={canvasWidth}
+            height={750}
+            onMouseUp={endDrag}
+            onMouseMove={(e) => {
+              if (draggingCircle) {
+                dragCircle(draggingCircle, e.movementX, e.movementY);
               }
-            }
-          }}
-          style={{ cursor: draggingCircle ? "grabbing" : "default" }}
-        />
-      )}
-      <div
-        style={{
-          width: sidebarWidth,
-          backgroundColor: "#ddd",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        {selectedCircle !== null && (
-          <>
-            <label htmlFor="balance">Balance:</label>
-            <input
-              id="balance"
-              name="balance"
-              value={inputs.balance}
-              onChange={handleInputChange}
-              style={{ width: "50px" }}
-            />
+            }}
+            onMouseDown={(e) => {
+              const mouseX = e.nativeEvent.offsetX;
+              const mouseY = e.nativeEvent.offsetY;
 
-            <button onClick={handleSave}>Save</button>
-          </>
+              for (const circle of circles) {
+                const distance = Math.sqrt(
+                  (mouseX - circle.x) ** 2 + (mouseY - circle.y) ** 2
+                );
+                if (distance <= circle.radius) {
+                  clickCircle(circle.id);
+                  return;
+                }
+              }
+            }}
+            style={{ cursor: draggingCircle ? "grabbing" : "default" }}
+          />
         )}
-      </div>
-      <div>
-        <button onClick={addCircle}>Add Circle</button>
-        <button onClick={saveCircles}>Save</button>
-        <button onClick={sendDataToBackend}>Run</button>
+        <div
+          style={{
+            width: sidebarWidth,
+            backgroundColor: "#043873",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            padding: "20px",
+            color: "#4F9CF9",
+            justifyContent: "space-between",
+            height: "750px",
+          }}
+        >
+          <div style={{ flexGrow: 1 }}>
+            {selectedCircle !== null && (
+              <>
+                <label htmlFor="balance">Balance:</label>
+                <input
+                  id="balance"
+                  name="balance"
+                  value={inputs.balance}
+                  onChange={handleInputChange}
+                  style={{
+                    width: "100%",
+                    marginBottom: "10px",
+                    padding: "5px",
+                    borderRadius: "5px",
+                    fontFamily: 'Inter',
+                  }}
+                />
+                <button
+                  onClick={handleSave}
+                  style={{
+                    marginBottom: "10px",
+                    padding: "5px 15px",
+                    backgroundColor: "#4F9CF9",
+                    color: "#fff",
+                    borderRadius: "5px",
+                    fontFamily: 'Inter',
+                    alignItems: "center",
+                  }}
+                >
+                  Save Balance
+                </button>
+              </>
+            )}
+            <button
+              onClick={addCircle}
+              style={{
+                marginBottom: "10px",
+                padding: "5px 15px",
+                backgroundColor: "#4F9CF9",
+                color: "#fff",
+                borderRadius: "5px",
+                fontFamily: 'Inter',
+                alignItems: "center",
+              }}
+            >
+              Add Circle
+            </button>
+          </div>
+          <button
+            onClick={sendDataToBackend}
+            style={{
+              marginBottom: "10px",
+              padding: "5px 15px",
+              backgroundColor: "#4F9CF9",
+              color: "#fff",
+              borderRadius: "5px",
+              fontFamily: 'Inter',
+            }}
+          >
+            Run Simulation
+          </button>
+          <button
+            onClick={() => setView("home")}
+            style={{
+              marginBottom: "10px",
+              padding: "5px 15px",
+              backgroundColor: "#4F9CF9",
+              color: "#fff",
+              borderRadius: "5px",
+              fontFamily: 'Inter',
+            }}
+          >
+            Go Home
+          </button>
+          <button
+            onClick={() =>
+              (window.location.href =
+                "https://thetokenist.substack.com/?utm_source=substack&utm_medium=web&utm_campaign=substack_profile")
+            }
+            style={{
+              padding: "5px 15px",
+              backgroundColor: "#D65A10",
+              color: "#fff",
+              borderRadius: "5px",
+              fontFamily: 'Inter',
+            }}
+          >
+            Subscribe
+          </button>
+        </div>
       </div>
     </div>
   );
