@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api/circles/';
+const API_URL = 'http://ec2-3-93-45-20.compute-1.amazonaws.com:8000/api/circles/';
 
 // Function to fetch data from the API
 const fetchData = async () => {
