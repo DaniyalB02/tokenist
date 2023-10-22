@@ -58,7 +58,7 @@ function PaintApp({ setView }) {
 
       // Send POST request
       const response = await fetch(
-        "/myapi/http://ec2-3-93-45-20.compute-1.amazonaws.com:8000/api/process_data/",
+        '/api/proxy/...',
         {
           method: "POST",
           headers: {
