@@ -1,0 +1,42 @@
+.subscribe-bg {
+    background-color: #043873;
+    padding: 100px 0;  /* Increased padding on the top and bottom */
+    text-align: center;
+    color: white;
+}
+
+.subscribe-bg h1 {
+    font-family: 'Inter', sans-serif;
+    font-size: 75px;
+    margin-bottom: 20px;
+}
+
+.subscribe-bg h3 {
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 20px;
+    font-weight: normal;
+}
+
+.subscribe-btn {
+    font-family: 'Inter', sans-serif;
+    background-color: #FF681A;
+    color: white;
+    border: none;
+    padding: 15px 25px;  /* Increased padding for the button */
+    cursor: pointer;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* space between the icon and text */
+    margin: 0 auto; /* To center the button */
+}
+
+.substack-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.subscribe-btn:hover {
+    background-color: #D65A10; /* Slightly darker shade of the original button color */
+}

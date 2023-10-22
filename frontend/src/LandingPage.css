@@ -1,0 +1,84 @@
+body, html {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    width: 100%; /* Added this line */
+    overflow-x: hidden; /* This will prevent any horizontal scrolling */
+}
+
+.landing-bg {
+    font-family: 'Inter', sans-serif;
+    background-image: url('./assets/wavyBackground.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    width: 100vw; /* Ensure the background spans the full viewport width */
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative; 
+    overflow-x: hidden; /* Prevent horizontal overflow */
+}
+
+.landing-content {
+    display: flex;
+    align-items: center;
+    width: 100vw;  /* This will take full viewport width */
+    padding: 0 20px; 
+    z-index: 0;
+}
+
+.text-section {
+    font-family: 'Inter', sans-serif;
+    flex: 1;
+    text-align: left;
+    margin-left: 50px;
+}
+
+.landing-content h1 {
+    font-family: 'Inter', sans-serif;
+    font-size: 75px; /* Increased the size */
+    margin: 0;
+}
+
+.landing-content h3 {
+    font-family: 'Inter', sans-serif;
+    font-weight: normal;
+}
+
+.landing-content p {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: left;
+    font-size: 1.2rem; /* Increase the size if needed */
+}
+
+.main-image {
+    flex: 1.5;  /* Increase this if you want the image section to take more space */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+  
+.main-image img {
+    width: 900px; /* Ensure the image takes full width of its container */
+    height: auto;
+}
+
+.discover-more-btn {
+    font-family: 'Inter', sans-serif;
+    padding: 10px 20px;
+    background-color: #0099FF;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 20px;
+    font-size: 1rem; /* Increase the size if needed */
+}
+  
+.discover-more-btn:hover {
+    background-color: #0077CC;
+}

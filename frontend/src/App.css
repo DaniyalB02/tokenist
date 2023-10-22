@@ -1,38 +1,22 @@
-.App {
-  text-align: center;
+button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  background-color: #4F9CF9; /* updated the background color */
+  color: white;  /* text color changed to white for better visibility on the new button background color */
+  cursor: pointer;
+  font-size: 18px; /* making the font size a bit bigger for better visibility */
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Adding the main and subtext styles */
+h1 {
+  font-size: 75px;
+  font-weight: bold;
+  font-family: 'Inter', sans-serif; 
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+p {
+  font-size: 18px;
+  font-weight: regular;
+  font-family: 'Inter', sans-serif; 
 }
