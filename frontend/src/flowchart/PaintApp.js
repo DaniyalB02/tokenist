@@ -1,11 +1,12 @@
 import React, { useRef, useState, useEffect } from "react";
 
-
 function PaintApp({ setView }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return; // exit the effect if the canvas isn't mounted yet
+
     const ctx = canvas.getContext("2d");
 
     // Draw a grid background
@@ -33,35 +34,67 @@ function PaintApp({ setView }) {
     setDraggingCircle(null);
   };
 
+  const saveImageToComputer = (dataURL, filename) => {
+    const a = document.createElement("a");
+    a.href = dataURL;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   const sendDataToBackend = async () => {
-    // Create data object
-    const circlesData = {
-      data: circles.map((circle) => ({
-        id: circle.id,
-        x: circle.x,
-        y: circle.y,
-        radius: circle.radius,
-        balance: circle.balance,
-      })),
-    };
+    try {
+      // Create data object
+      const circlesData = {
+        data: circles.map((circle) => ({
+          id: circle.id,
+          x: circle.x,
+          y: circle.y,
+          radius: circle.radius,
+          balance: circle.balance,
+        })),
+      };
 
-    // Send POST request
-    const response = await fetch("http://localhost:8000/api/process_data/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(circlesData),
-    });
+      // Send POST request
+      const response = await fetch(
+        "http://ec2-3-93-45-20.compute-1.amazonaws.com:8000/api/process_data/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(circlesData),
+        }
+      );
 
-    // Handle response
-    const data = await response.json();
+      const data = await response.json();
 
-    if (data.error) {
-      console.error("Error:", data.error);
-    } else {
-      // Set image src to base64 data
-      setImageURL(`data:image/png;base64,${data.image}`);
+      if (data.error) {
+        console.error("Error:", data.error);
+      } else {
+        // Save image to the person's computer
+        saveImageToComputer(
+          `data:image/png;base64,${data.image}`,
+          "model_image.png"
+        );
+
+        // Clear the canvas and show the message
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = "24px Arial";
+        ctx.fillStyle = "black";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(
+          "Model saved! Restart the website to create another model",
+          canvas.width / 2,
+          canvas.height / 2
+        );
+      }
+    } catch (error) {
+      console.error("Failed to send data to backend:", error);
     }
   };
 
@@ -124,6 +157,8 @@ function PaintApp({ setView }) {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return; // exit the effect if the canvas isn't mounted yet
+
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -221,7 +256,7 @@ function PaintApp({ setView }) {
                     marginBottom: "10px",
                     padding: "5px",
                     borderRadius: "5px",
-                    fontFamily: 'Inter',
+                    fontFamily: "Inter",
                   }}
                 />
                 <button
@@ -232,7 +267,7 @@ function PaintApp({ setView }) {
                     backgroundColor: "#4F9CF9",
                     color: "#fff",
                     borderRadius: "5px",
-                    fontFamily: 'Inter',
+                    fontFamily: "Inter",
                     alignItems: "center",
                   }}
                 >
@@ -248,7 +283,7 @@ function PaintApp({ setView }) {
                 backgroundColor: "#4F9CF9",
                 color: "#fff",
                 borderRadius: "5px",
-                fontFamily: 'Inter',
+                fontFamily: "Inter",
                 alignItems: "center",
               }}
             >
@@ -263,7 +298,7 @@ function PaintApp({ setView }) {
               backgroundColor: "#4F9CF9",
               color: "#fff",
               borderRadius: "5px",
-              fontFamily: 'Inter',
+              fontFamily: "Inter",
             }}
           >
             Run Simulation
@@ -276,7 +311,7 @@ function PaintApp({ setView }) {
               backgroundColor: "#4F9CF9",
               color: "#fff",
               borderRadius: "5px",
-              fontFamily: 'Inter',
+              fontFamily: "Inter",
             }}
           >
             Go Home
@@ -291,7 +326,7 @@ function PaintApp({ setView }) {
               backgroundColor: "#D65A10",
               color: "#fff",
               borderRadius: "5px",
-              fontFamily: 'Inter',
+              fontFamily: "Inter",
             }}
           >
             Subscribe
