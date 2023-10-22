@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 
 function PaintApp({ setView }) {
   const canvasRef = useRef(null);
@@ -58,7 +58,7 @@ function PaintApp({ setView }) {
 
       // Send POST request
       const response = await fetch(
-        '/api/proxy/...',
+        "http://ec2-3-93-45-20.compute-1.amazonaws.com:8000/api/process_data/",
         {
           method: "POST",
           headers: {
