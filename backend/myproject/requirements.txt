@@ -4,8 +4,11 @@ cadCAD
 pandas
 numpy
 matplotlib
-hvplot 
+hvplot
 Django==4.1
 djangorestframework>=3.12,<4
 django-cors-headers>=3.10,<4
 psycopg2-binary>=2.9,<3
+gunicorn
+dj-database-url
+whitenoise
