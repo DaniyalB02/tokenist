@@ -1,0 +1,59 @@
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 50px;
+    background-color: rgba(4, 56, 115, 0.8); /* Make the background slightly transparent */
+    width: 100%;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px); /* Add this for the blur effect */
+    -webkit-backdrop-filter: blur(10px); /* For Safari */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Optional: Adds a subtle border */
+}
+
+  
+.navbar-logo {
+    max-width: 200px; /* reduced size for better fit */
+    height: auto;
+    padding-left: 20px; /* Add this to give some space from the left edge */
+}
+  
+.try-free-btn {
+    font-family: 'Inter', sans-serif;
+    background-color: #0099FF;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-right: 100px; /* Add this to give some space from the right edge */
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+  
+.try-free-btn:hover {
+    background-color: #0077CC;
+}
+
+.navbar-subscribe-btn {
+    font-family: 'Inter', sans-serif;
+    background-color: #FF681A;
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-right: 10px; /* Add a little space between the Subscribe and Try Tokenist Free button */
+}
+
+.navbar-subscribe-btn:hover {
+    background-color: #D65A10; 
+}
+
+.button-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Provides spacing between the two buttons */
+}
