@@ -5,7 +5,7 @@ setup:
     as: DATABASE
 build:
   docker:
-    web: Dockerfile
+    web: /backend/Dockerfile
 run:
-  web: gunicorn myproject.wsgi
+  web: gunicorn /backend/myproject.wsgi
 
