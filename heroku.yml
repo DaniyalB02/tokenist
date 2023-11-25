@@ -6,6 +6,4 @@ setup:
 build:
   docker:
     web: /backend/Dockerfile
-run:
-  web: gunicorn /backend/myproject.wsgi
 
