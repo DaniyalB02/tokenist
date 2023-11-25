@@ -24,4 +24,4 @@ EXPOSE 8000
 # ENV DJANGO_SETTINGS_MODULE=myproject.settings
 
 # Start your application
-CMD ["sh", "startup.sh"]
+# CMD ["sh", "startup.sh"]
