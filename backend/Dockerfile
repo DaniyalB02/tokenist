@@ -18,7 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 
 # Expose the port your application runs on
-EXPOSE 8000
+#EXPOSE $PORT
 
 # Define environment variable for Django
 # ENV DJANGO_SETTINGS_MODULE=myproject.settings
