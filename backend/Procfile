@@ -1,2 +1,2 @@
-#web: gunicorn -b 0.0.0.0:$PORT myproject.wsgi:application --log-file=-
-web: python manage.py run_gunicorn -b 0.0.0.0:$PORT
+web: gunicorn -b 0.0.0.0:$PORT myproject.wsgi:application --log-file=-
+#web: python manage.py run_gunicorn -b 0.0.0.0:$PORT
