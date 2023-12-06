@@ -1,11 +1,11 @@
 networkx
-fn == 0.4.3
+fn==0.4.3
 cadCAD
 pandas
 numpy
 matplotlib
 hvplot
-Django==4.1
+Django==3.2  # or the version you intend to use
 djangorestframework>=3.12,<4
 django-cors-headers>=3.10,<4
 psycopg2-binary>=2.9,<3
