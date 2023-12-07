@@ -1,0 +1,15 @@
+networkx
+fn==0.4.3
+cadCAD
+pandas
+numpy
+matplotlib
+hvplot
+Django==3.2  # the version you intend to use
+djangorestframework>=3.12,<4
+django-cors-headers>=3.10,<4
+psycopg2-binary>=2.9,<3
+gunicorn==20.1.0
+dj-database-url
+whitenoise
+django-on-heroku
