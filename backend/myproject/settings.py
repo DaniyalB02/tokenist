@@ -55,6 +55,11 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Add your frontend origin for development
+    "https://tokenist-tunz.vercel.app",  # Add your production frontend origin
+]
+
 ROOT_URLCONF = 'myproject.urls'
 
 TEMPLATES = [

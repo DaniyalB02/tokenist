@@ -13,3 +13,4 @@ gunicorn==20.1.0
 dj-database-url
 whitenoise
 django-on-heroku
+django-cors-headers
