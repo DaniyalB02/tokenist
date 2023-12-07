@@ -58,7 +58,7 @@ function PaintApp({ setView }) {
 
       // Send POST request
       const response = await fetch(
-        "https://tokenist-backend-4907e900c176.herokuapp.com/api/process_data/",
+        "https://tokenist-backend-second-cd0c0ecb9e30.herokuapp.com/api/process_data/",
         {
           method: "POST",
           headers: {
