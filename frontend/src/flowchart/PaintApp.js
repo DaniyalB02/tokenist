@@ -2,22 +2,6 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 
 function PaintApp({ setView }) {
   const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return; // exit the effect if the canvas isn't mounted yet
-
-    const ctx = canvas.getContext("2d");
-
-    // Draw a grid background
-    ctx.fillStyle = "lightgray";
-    for (let x = 0; x < canvas.width; x += 10) {
-      for (let y = 0; y < canvas.height; y += 10) {
-        ctx.fillRect(x, y, 1, 1);
-      }
-    }
-  }, []);
-
   const canvasWidth = window.innerWidth * 0.8;
   const sidebarWidth = window.innerWidth * 0.2;
 
@@ -28,7 +12,24 @@ function PaintApp({ setView }) {
     balance: "0",
   });
 
-  const [imageURL, setImageURL] = useState(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return; // exit the effect if the canvas isn't mounted yet
+
+    const ctx = canvas.getContext("2d");
+
+    // Draw a grid background
+    drawGrid(ctx, canvas.width, canvas.height);
+  }, []);
+
+  const drawGrid = (ctx, width, height) => {
+    ctx.fillStyle = "lightgray";
+    for (let x = 0; x < width; x += 10) {
+      for (let y = 0; y < height; y += 10) {
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+  };
 
   const endDrag = () => {
     setDraggingCircle(null);
@@ -80,22 +81,28 @@ function PaintApp({ setView }) {
         );
 
         // Clear the canvas and show the message
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.font = "24px Arial";
-        ctx.fillStyle = "black";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(
-          "Model saved! Restart the website to create another model",
-          canvas.width / 2,
-          canvas.height / 2
-        );
+        clearCanvas();
+        showMessageOnCanvas("Model saved! Restart the website to create another model");
       }
     } catch (error) {
       console.error("Failed to send data to backend:", error);
     }
+  };
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  const showMessageOnCanvas = (message) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    ctx.font = "24px Arial";
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(message, canvas.width / 2, canvas.height / 2);
   };
 
   const dragCircle = (id, dx, dy) => {
@@ -160,15 +167,8 @@ function PaintApp({ setView }) {
     if (!canvas) return; // exit the effect if the canvas isn't mounted yet
 
     const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Redraw the grid background
-    ctx.fillStyle = "lightgray";
-    for (let x = 0; x < canvas.width; x += 10) {
-      for (let y = 0; y < canvas.height; y += 10) {
-        ctx.fillRect(x, y, 1, 1);
-      }
-    }
+    clearCanvas();
+    drawGrid(ctx, canvas.width, canvas.height);
 
     // Draw circles
     circles.forEach((circle) => {
@@ -199,84 +199,88 @@ function PaintApp({ setView }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       <div style={{ display: "flex", flex: 1 }}>
-        {imageURL ? (
-          <img src={imageURL} alt="Result" />
-        ) : (
-          <canvas
-            ref={canvasRef}
-            width={canvasWidth}
-            height={750}
-            onMouseUp={endDrag}
-            onMouseMove={(e) => {
-              if (draggingCircle) {
-                dragCircle(draggingCircle, e.movementX, e.movementY);
-              }
-            }}
-            onMouseDown={(e) => {
-              const mouseX = e.nativeEvent.offsetX;
-              const mouseY = e.nativeEvent.offsetY;
-
-              for (const circle of circles) {
-                const distance = Math.sqrt(
-                  (mouseX - circle.x) ** 2 + (mouseY - circle.y) ** 2
-                );
-                if (distance <= circle.radius) {
-                  clickCircle(circle.id);
-                  return;
-                }
-              }
-            }}
-            style={{ cursor: draggingCircle ? "grabbing" : "default" }}
-          />
-        )}
-        <div
-          style={{
-            width: sidebarWidth,
-            backgroundColor: "#043873",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            padding: "20px",
-            color: "#4F9CF9",
-            justifyContent: "space-between",
-            height: "750px",
+        <canvas
+          ref={canvasRef}
+          width={canvasWidth}
+          height={750}
+          onMouseUp={endDrag}
+          onMouseMove={(e) => {
+            if (draggingCircle) {
+              dragCircle(draggingCircle, e.movementX, e.movementY);
+            }
           }}
-        >
-          <div style={{ flexGrow: 1 }}>
-            {selectedCircle !== null && (
-              <>
-                <label htmlFor="balance">Balance:</label>
-                <input
-                  id="balance"
-                  name="balance"
-                  value={inputs.balance}
-                  onChange={handleInputChange}
-                  style={{
-                    width: "100%",
-                    marginBottom: "10px",
-                    padding: "5px",
-                    borderRadius: "5px",
-                    fontFamily: "Inter",
-                  }}
-                />
-                <button
-                  onClick={handleSave}
-                  style={{
-                    marginBottom: "10px",
-                    padding: "5px 15px",
-                    backgroundColor: "#4F9CF9",
-                    color: "#fff",
-                    borderRadius: "5px",
-                    fontFamily: "Inter",
-                    alignItems: "center",
-                  }}
-                >
-                  Save Balance
-                </button>
-              </>
-            )}
+          onMouseDown={(e) => {
+            const mouseX = e.nativeEvent.offsetX;
+            const mouseY = e.nativeEvent.offsetY;
+
+            for (const circle of circles) {
+              const distance = Math.sqrt(
+                (mouseX - circle.x) ** 2 + (mouseY - circle.y) ** 2
+              );
+              if (distance <= circle.radius) {
+                clickCircle(circle.id);
+                return;
+              }
+            }
+          }}
+          style={{ cursor: draggingCircle ? "grabbing" : "default" }}
+        />
+        <Sidebar
+          selectedCircle={selectedCircle}
+          inputs={inputs}
+          handleInputChange={handleInputChange}
+          handleSave={handleSave}
+          addCircle={addCircle}
+          sendDataToBackend={sendDataToBackend}
+          setView={setView}
+        />
+      </div>
+    </div>
+  );
+}
+
+function Sidebar({
+  selectedCircle,
+  inputs,
+  handleInputChange,
+  handleSave,
+  addCircle,
+  sendDataToBackend,
+  setView,
+}) {
+  return (
+    <div
+      style={{
+        width: "30%",
+        backgroundColor: "#043873",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        padding: "20px",
+        color: "#4F9CF9",
+        justifyContent: "space-between",
+        height: "95%",
+      }}
+    >
+      <div style={{ flexGrow: 1 }}>
+        {selectedCircle !== null && (
+          <>
+            <label htmlFor="balance">Balance:</label>
+            <input
+              id="balance"
+              name="balance"
+              value={inputs.balance}
+              onChange={handleInputChange}
+              style={{
+                width: "100%",
+                marginBottom: "10px",
+                padding: "5px",
+                borderRadius: "5px",
+                fontFamily: "Inter",
+              }}
+            />
             <button
-              onClick={addCircle}
+              onClick={handleSave}
               style={{
                 marginBottom: "10px",
                 padding: "5px 15px",
@@ -287,52 +291,66 @@ function PaintApp({ setView }) {
                 alignItems: "center",
               }}
             >
-              Add Circle
+              Save Balance
             </button>
-          </div>
-          <button
-            onClick={sendDataToBackend}
-            style={{
-              marginBottom: "10px",
-              padding: "5px 15px",
-              backgroundColor: "#4F9CF9",
-              color: "#fff",
-              borderRadius: "5px",
-              fontFamily: "Inter",
-            }}
-          >
-            Run Simulation
-          </button>
-          <button
-            onClick={() => setView("home")}
-            style={{
-              marginBottom: "10px",
-              padding: "5px 15px",
-              backgroundColor: "#4F9CF9",
-              color: "#fff",
-              borderRadius: "5px",
-              fontFamily: "Inter",
-            }}
-          >
-            Go Home
-          </button>
-          <button
-            onClick={() =>
-              (window.location.href =
-                "https://thetokenist.substack.com/?utm_source=substack&utm_medium=web&utm_campaign=substack_profile")
-            }
-            style={{
-              padding: "5px 15px",
-              backgroundColor: "#D65A10",
-              color: "#fff",
-              borderRadius: "5px",
-              fontFamily: "Inter",
-            }}
-          >
-            Subscribe
-          </button>
-        </div>
+          </>
+        )}
+        <button
+          onClick={addCircle}
+          style={{
+            marginBottom: "10px",
+            padding: "5px 15px",
+            backgroundColor: "#4F9CF9",
+            color: "#fff",
+            borderRadius: "5px",
+            fontFamily: "Inter",
+            alignItems: "center",
+          }}
+        >
+          Add Circle
+        </button>
       </div>
+      <button
+        onClick={sendDataToBackend}
+        style={{
+          marginBottom: "10px",
+          padding: "5px 15px",
+          backgroundColor: "#4F9CF9",
+          color: "#fff",
+          borderRadius: "5px",
+          fontFamily: "Inter",
+        }}
+      >
+        Run Simulation
+      </button>
+      <button
+        onClick={() => setView("home")}
+        style={{
+          marginBottom: "10px",
+          padding: "5px 15px",
+          backgroundColor: "#4F9CF9",
+          color: "#fff",
+          borderRadius: "5px",
+          fontFamily: "Inter",
+        }}
+      >
+        Go Home
+      </button>
+      <button
+        onClick={() =>
+          (window.location.href =
+            "https://thetokenist.substack.com/?utm_source=substack&utm_medium=web&utm_campaign=substack_profile")
+        }
+        style={{
+          padding: "5px 15px",
+          backgroundColor: "#D65A10",
+          color: "#fff",
+          borderRadius: "5px",
+          fontFamily: "Inter",
+        }}
+      >
+        Subscribe
+      </button>
     </div>
   );
 }
