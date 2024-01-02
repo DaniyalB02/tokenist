@@ -119,29 +119,28 @@ function PaintApp({ setView }) {
       const rect = canvasRef.current.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
-
+    
       // Check if the click is outside all circles
-      const clickedOutsideCircles = circles.every((circle) => {
+      const clickedOutsideCircles = circles.every(circle => {
         return Math.sqrt((x - circle.x) ** 2 + (y - circle.y) ** 2) > circle.radius;
       });
-
+    
       if (clickedOutsideCircles) {
         setSelectedCircle(null);
         setHighlightedCircles([]);
-        setHighlightedEdge(null); // Clear highlighted edge on canvas click
       }
-
-      const clickedEdge = edges.find((edge) => {
+    
+      const clickedEdge = edges.find(edge => {
         return isClickNearEdge(x, y, edge);
       });
-
+    
       if (clickedEdge) {
         setHighlightedEdge(clickedEdge);
-        setHighlightedCircles([]); // Clear highlighted circles when an edge is clicked
       } else {
         setHighlightedEdge(null);
       }
     };
+    
     
     // Add event listener to the canvas
     const canvasElement = canvasRef.current;
@@ -237,9 +236,8 @@ function PaintApp({ setView }) {
       console.log("Data to send:", dataToSend);
   
       // Send POST request
-      //"https://tokenist-backend-second-cd0c0ecb9e30.herokuapp.com/api/process_data/"
       const response = await fetch(
-        "http://127.0.0.1:8000/api/process_data/",
+        "https://tokenist-backend-second-cd0c0ecb9e30.herokuapp.com/api/process_data/",
         {
           method: "POST",
           headers: {

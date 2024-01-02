@@ -25,6 +25,7 @@ const Popup = ({ onClose }) => {
         <li>When you click on them, you can give them a balance.</li>
         <li>If you click and drag between two circles, you can add an edge. This gives a probability of two nodes "transacting" with each other.</li>
         <li>Run the simulation once you've created your micro-market!</li>
+        <li>KEY INFO: To add an edge between two nodes, HOLD shift, highlight two circles and an "add edge" button may appear</li>
       </ul>
 
       <h3>The output:</h3>
