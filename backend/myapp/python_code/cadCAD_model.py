@@ -1,218 +1,57 @@
 
-# cadCAD standard dependencies
-# cadCAD configuration modules
-from cadCAD.configuration.utils import config_sim
-from cadCAD.configuration import Experiment
-
-# cadCAD simulation engine modules
-from cadCAD.engine import ExecutionMode, ExecutionContext
-from cadCAD.engine import Executor
-
-# cadCAD global simulation configuration list
-from cadCAD import configs
-
 # Included with cadCAD
 import pandas as pd
-
-# Additional dependencies
-
-# For networks
-import networkx as nx
 
 # For analytics
 import numpy as np
 
-# For visualization
-from matplotlib import pyplot as plt
 
-def cadCAD_model(G, interaction_prob, balance_fraction):
+def markov_chain_simulation(G, num_steps):
+    # Get the number of nodes in the graph
+    num_nodes = len(G.nodes)
 
-    initial_state = {
-        'agents_network': G
-    }
+    # Initialize the initial state vector with node balances
+    initial_state_vector = np.array([G.nodes[node]["balance"] for node in G.nodes])
 
-    system_params = {
-        # Pair-wise interaction probability
-        'interaction_probability': [interaction_prob], 
-        
-        # Fraction of the agent balance to stake
-        'balance_fraction_to_stake': [balance_fraction] 
-    }
+    # Initialize the transition probability matrix with zeros
+    transition_matrix = np.zeros((num_nodes, num_nodes))
 
-    def p_interact(params, substep, state_history, previous_state):
-        """
-        Control agent interactions.
-        """
-        
-        # Parameters
-        interaction_probability = params['interaction_probability']
-        balance_fraction_to_transfer = params['balance_fraction_to_stake']
-        
-        # State Variables
-        G = previous_state['agents_network']
+    # Populate the transition probability matrix
+    for start_node, end_node, data in G.edges(data=True):
+        probability = data.get("probability", 0)
+        transition_matrix[start_node - 1, end_node - 1] = probability  # Adjust indexing here
 
-        # List of agent transactions
-        transactions = []
-        
-        for agent_1 in G.nodes:
-            for agent_2 in G.nodes:
-                
-                # Skip self-transactions
-                if agent_1 == agent_2:
-                    continue
-                else:
-                    # Determine if the agents are going to interact
-                    will_interact = (np.random.rand() < interaction_probability)
-                    
-                    if will_interact is True:
-                        # Get agent balances
-                        agent_1_balance = G.nodes[agent_1]['balance']
-                        agent_2_balance = G.nodes[agent_2]['balance']
-                        
-                        # Get exchange values
-                        agent_1_exchange = agent_1_balance * balance_fraction_to_transfer
-                        agent_2_exchange = agent_2_balance * balance_fraction_to_transfer
-                        
-                        # Set the final exchange as being the minimum of the two                
-                        exchange = min(agent_1_exchange, agent_2_exchange)
-                        
-                        # Generate a transaction
-                        transaction = {'source': agent_1,
-                                    'destination': agent_2,
-                                    'value': exchange}
-                        
-                        transactions.append(transaction)
-                    else:
-                        continue
-                        
-        # Return agent interactions
-        return {'transactions': transactions}
+    print("Initial state vector:", initial_state_vector)
+    print("Transition probability matrix:", transition_matrix)
 
-    def s_agents_network(params, substep, state_history, previous_state, policy_input):
-        # State Variables
-        G_new = previous_state['agents_network'].copy()
-        
-        # Policy Inputs
-        transactions = policy_input['transactions']
-        
-        for transaction in transactions:
-            # Retrieve transaction details
-            source = transaction['source']
-            destination = transaction['destination']
-            amount = transaction['value']
-            
-            # Add / remove the amount from the agent's balance
-            G_new.nodes[source]['balance'] -= amount
-            G_new.nodes[destination]['balance'] += amount
-            
-            # Add the transaction as a graph edge
-            G_new.add_edge(source, destination, amount=amount)
-            
-        return ('agents_network', G_new)
+    # Create a DataFrame with column names based on node IDs
+    df = pd.DataFrame(columns=[f'Node_{i}' for i in range(1, num_nodes + 1)])
 
-    partial_state_update_blocks = [
-        {   
-            # Configure the model Policy Functions
-            'policies': {
-                'p_interact': p_interact
-            },
-            # Configure the model State Update Functions
-            'variables': {
-                'agents_network': s_agents_network
-            }
-        }
-    ]
+    # Use a list to efficiently collect rows
+    rows_list = []
 
-    sim_config = config_sim({
-        "N": 1, # the number of times we'll run the simulation ("Monte Carlo runs")
-        "T": range(300), # the number of timesteps the simulation will run for
-        "M": system_params # the parameters of the system
-    })
+    # Simulate transactions for each step
+    for step in range(num_steps):
+        # Initialize a row with initial balances
+        row = initial_state_vector.copy()
 
-    del configs[:] # Clear any prior configs
+        # Simulate transactions between nodes
+        for i in range(num_nodes):
+            for j in range(num_nodes):
+                # Check if a transaction occurs based on the transition probability matrix
+                if np.random.rand() < transition_matrix[i, j]:
+                    # Perform the transaction (e.g., 10% transfer)
+                    transaction_amount = 0.1 * row[i]
+                    row[i] -= transaction_amount
+                    row[j] += transaction_amount
 
-    experiment = Experiment()
-    experiment.append_configs(
-        initial_state = initial_state,
-        partial_state_update_blocks = partial_state_update_blocks,
-        sim_configs = sim_config
-    )
+        # Append the row to the list
+        rows_list.append(row)
 
-    exec_context = ExecutionContext()
-    simulation = Executor(exec_context=exec_context, configs=experiment.configs)
-    raw_result, tensor_field, sessions = simulation.execute()
+    # Convert the list to a DataFrame
+    df_extended = pd.DataFrame(rows_list, columns=df.columns)
 
-    # Convert raw results to a Pandas DataFrame
-    df = pd.DataFrame(raw_result)
+    # Concatenate the original and extended DataFrames
+    df = pd.concat([df, df_extended], ignore_index=True)
 
-    # Insert cadCAD parameters for each configuration into DataFrame
-    for config in configs:
-        # Get parameters from configuration
-        parameters = config.sim_config['M']
-        # Get subset index from configuration
-        subset_index = config.subset_id
-        
-        # For each parameter key value pair
-        for (key, value) in parameters.items():
-            # Select all DataFrame indices where subset == subset_index
-            dataframe_indices = df.eval(f'subset == {subset_index}')
-            # Assign each parameter key value pair to the DataFrame for the corresponding subset
-            df.loc[dataframe_indices, key] = value
-
-    # Get the agents network at the beginning
-    G = df.agents_network.iloc[0]
-
-    # Get the agent balances
-    node_balances = nx.get_node_attributes(G, 'balance')
-    node_labels = {node: f"{value :.0f}" for node, value in node_balances.items()}
-
-    # Get the agent colors
-    node_colors = nx.get_node_attributes(G, 'color')
-
-    # Node sizes
-    sizes = list(node_balances.values())
-
-    # Prepare the figure
-    #plt.figure(figsize=(12, 4))
-
-    # Draw the nodes
-    """pos = nx.spring_layout(G)
-    node_colors_list = [node_colors.get(node, "blue") for node in G.nodes()]
-    nx.draw(G,
-            pos,
-            node_size=sizes,
-            node_color=node_colors_list)
-"""
-
-    # Draw the balances
-    #nx.draw_networkx_labels(G, pos, labels=node_labels)
-    
-    # Get the agents network after 2 rounds
-    G = df.agents_network.iloc[2]
-
-    # Get the agent balances
-    node_balances = nx.get_node_attributes(G, 'balance')
-    node_labels = {node: f"{value :.0f}" for node, value in node_balances.items()}
-
-    # Get the agent colors
-    node_colors = nx.get_node_attributes(G, 'color')
-
-    # Node sizes
-    sizes = list(node_balances.values())
-
-
-    # Prepare the figure
-    plt.figure(figsize=(12, 4))
-
-    # Draw the nodes
-    pos = nx.spring_layout(G)
-    node_colors_list = [node_colors.get(node, "blue") for node in G.nodes()]
-    nx.draw(G,
-            pos,
-            node_size=sizes,
-            node_color=node_colors_list)
-
-    # Draw the balances
-    nx.draw_networkx_labels(G, pos, labels=node_labels)
-    
     return df

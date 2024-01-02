@@ -1,26 +1,37 @@
-from collections import OrderedDict
 import json
+from collections import OrderedDict
 import networkx as nx
 
 def convert_to_networkx(data):
+    try:
+        if isinstance(data, dict):
+            data = json.dumps(data)
 
-    if isinstance(data, dict):
-        data = json.dumps(data)   
-    
-    
-    data = json.loads(data, object_pairs_hook=OrderedDict)
+        data = json.loads(data, object_pairs_hook=OrderedDict)
 
-    nodes = data["data"]
+        circles = data.get("circles", [])
+        edges = data.get("edges", [])
 
-    G = nx.Graph()
+        G = nx.DiGraph()  # Use DiGraph to create a directed graph
 
-    for node in nodes:
-        node_id = node["id"]
-        node_balance = float(node["balance"])
-        
-        # Set color to red for all nodes
-        node_color = 'red'
-        
-        G.add_node(node_id, balance=node_balance, color=node_color)
-    
-    return G
+        # Add nodes with circle data
+        for circle in circles:
+            node_id = circle["id"]
+            node_balance = float(circle["balance"])
+            node_color = 'red'  # Set color to red for all nodes
+
+            G.add_node(node_id, balance=node_balance, color=node_color)
+
+        # Add edges with probability data
+        for edge in edges:
+            start_node = edge["start"]
+            end_node = edge["end"]
+            probability = float(edge["probability"])
+
+            G.add_edge(start_node, end_node, probability=probability)
+
+        return G
+
+    except Exception as e:
+        print(f"Error converting data to networkx: {str(e)}")
+        return None
